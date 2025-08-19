@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Admin Login - Basavatarakam Hospital</title>
+      <style>
+            :root {
+                  --primary: #0f346c;
+                  --accent: orange;
+                  --bg: #f5f7fa;
+                  --white: #ffffff;
+            }
+
+            body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: "Segoe UI", sans-serif;
+                  background-color: var(--bg);
+            }
+
+            nav {
+                  background-color: var(--primary);
+                  color: var(--white);
+                  height: 60px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                  z-index: 100;
+            }
+
+            nav h1 {
+                  margin: 0;
+                  font-size: 1.5rem;
+                  text-transform: uppercase;
+                  font-weight: 500;
+            }
+
+            .container {
+                  margin-top: 100px;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  padding: 20px;
+            }
+
+            .info-text {
+                  color: var(--accent);
+                  font-size: 1.1rem;
+                  font-weight: 500;
+                  margin-bottom: 20px;
+                  text-align: center;
+            }
+
+            .btn-group {
+                  display: flex;
+                  gap: 20px;
+                  margin-bottom: 30px;
+            }
+
+            .btn-group button {
+                  padding: 10px 20px;
+                  background-color: var(--primary);
+                  color: var(--white);
+                  border: none;
+                  border-radius: 20px;
+                  font-size: 0.95rem;
+                  cursor: pointer;
+                  transition: background 0.3s ease;
+            }
+
+            .btn-group button:hover {
+                  background-color: #09294f;
+            }
+
+            .login-box {
+                  background-color: var(--white);
+                  padding: 30px 40px;
+                  border-radius: 12px;
+                  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                  max-width: 400px;
+                  width: 100%;
+            }
+
+            .login-box h2 {
+                  color: var(--primary);
+                  font-weight: 500;
+                  margin-bottom: 25px;
+                  text-align: center;
+            }
+
+            form {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 15px;
+            }
+
+            label {
+                  font-weight: 500;
+                  color: #333;
+            }
+
+            input[type="text"],
+            input[type="password"],
+            input[type="email"],
+            input[type="date"] {
+                  padding: 10px;
+                  border: 1px solid #ccc;
+                  border-radius: 6px;
+                  font-size: 0.95rem;
+            }
+
+            .forgot {
+                  text-align: right;
+            }
+
+            .forgot a {
+                  font-size: 0.9rem;
+                  color: var(--accent);
+                  text-decoration: none;
+            }
+
+            .form-buttons {
+                  display: flex;
+                  justify-content: space-between;
+                  margin-top: 15px;
+            }
+
+            .form-buttons button {
+                  padding: 8px 18px;
+                  font-size: 0.95rem;
+                  border: none;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  transition: background 0.3s ease;
+            }
+
+            .form-buttons .submit {
+                  background-color: var(--primary);
+                  color: white;
+            }
+
+            .form-buttons .submit:hover {
+                  background-color: #09294f;
+            }
+
+            .form-buttons .reset {
+                  background-color: #e0e0e0;
+            }
+
+            .form-buttons .back {
+                  background-color: #f2f2f2;
+            }
+
+            @media screen and (max-width: 500px) {
+                  .login-box {
+                        padding: 20px;
+                  }
+
+                  .form-buttons {
+                        flex-direction: column;
+                        gap: 10px;
+                  }
+
+                  .btn-group {
+                        flex-direction: column;
+                        gap: 10px;
+                  }
+            }
+      </style>
+</head>
+
+<body>
+      <nav>
+            <h1>Basavatarakam Hospitals</h1>
+      </nav>
+
+      <div class="container">
+            <p class="info-text">
+                  Select an option to login as an admin or register as a new admin.
+            </p>
+
+            <div class="btn-group">
+                  <button id="login">Login</button>
+                  <button id="register">Register</button>
+            </div>
+
+            <div class="login-box">
+                  <h2>Admin Login</h2>
+                  <form action="admin1.php" method='post'>
+                        <div>
+                              <label for="email">Email:</label>
+                              <input type="email" id="email" name="email" required />
+                        </div>
+
+                        <div>
+                              <label for="password">Password:</label>
+                              <input type="password" id="password" name="password" required />
+                        </div>
+
+                        <div class="forgot">
+                              <a href="">Forgot Password?</a>
+                        </div>
+
+                        <div class="form-buttons">
+                              <button type="submit" class="submit">Login</button>
+                              <button type="reset" class="reset">Reset</button>
+                              <button type="button" class="back" onclick="window.location.href='/'">Back to
+                                    Home</button>
+                        </div>
+
+                        <!-- Optional CSRF -->
+                        <input type="hidden" name="_csrf" value="{{ csrf_token }}" />
+                  </form>
+            </div>
+      </div>
+</body>
+<script>
+
+      const box = document.querySelector('.login-box'); // FIXED
+
+      const login = document.getElementById('login');
+      const register = document.getElementById('register');
+
+      login.addEventListener('click', () => {
+            alert('Redirecting to Admin Login Page');
+            box.innerHTML = `
+            <h2>Admin Login</h2>
+            <form action="admin1.php" method='post'>
+                  <div>
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required />
+                  </div>
+
+                  <div>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required />
+                  </div>
+
+                  <div class="forgot">
+                        <a href="">Forgot Password?</a>
+                  </div>
+
+                  <div class="form-buttons">
+                        <button type="submit" class="submit">Login</button>
+                        <button type="reset" class="reset">Reset</button>
+                        <button type="button" class="back" onclick="window.location.href='/'">Back to Home</button>
+                  </div>
+
+                  <input type="hidden" name="_csrf" value="{{ csrf_token }}" />
+            </form>
+            `;
+      });
+
+      register.addEventListener('click', () => {
+            alert('Redirecting to Admin Registration Page');
+            box.innerHTML = `
+            
+
+    <h2>Admin Registration</h2>
+    <form action="adminregister.php" method="post">
+      <div>
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your full name" required />
+      </div>
+
+      <div>
+        <label for="emaild">Email Address:</label>
+        <input type="email" id="emaild" name="emaild" placeholder="e.g., you@example.com" required />
+      </div>
+
+      <div>
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required />
+      </div>
+
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder = 'Enter Your Password' />
+
+      </div>
+
+      <div>
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-Enter Your Password:"/>
+      </div>
+
+      <div class="form-buttons">
+        <button type="submit" class="submit">Register</button>
+        <button type="reset" class="reset">Reset</button>
+        <button type="button" class="back" onclick="window.location.href='/'">Back to Home</button>
+      </div>
+
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}" />
+    </form>
+  ;`
+
+      });
+</script>
+
+
+
+
+</html>

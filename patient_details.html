@@ -1,0 +1,272 @@
+# Create patient-details.html
+patient_details_html = """
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details - Basavatarakam Diagnostics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+            background-color: #f5f5f5;
+            color: #0f346c;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+            margin-top: 80px;
+        }
+
+        .header {
+            background-color: #0f346c;
+            color: white;
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .patient-form,
+        .order-summary {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .patient-form {
+            flex: 2;
+        }
+
+        .order-summary {
+            flex: 1;
+            height: fit-content;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #0f346c;
+        }
+
+        .btn {
+            background-color: #0f346c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .schedule-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0f346c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Patient Details & Lab Test Scheduling</h1>
+        <p>Complete your information to proceed with your lab tests</p>
+    </div>
+
+    <div class="container">
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div id="order-items"></div>
+            <div class="delivery-info">
+                <h4>🚚 Delivery Information</h4>
+                <p>• Sample collection within 24 hours</p>
+                <p>• Reports delivered within 6 hours</p>
+                <p>• Orders delivered within 4 days guaranteed</p>
+            </div>
+        </div>
+
+        <div class="patient-form">
+            <form id="patient-details-form">
+                <h2>Patient Information</h2>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>First Name *</label>
+                            <input type="text" name="firstName" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Last Name *</label>
+                            <input type="text" name="lastName" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" name="age" min="1" max="120" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" name="phone" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" name="email" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Address *</label>
+                    <textarea name="address" required></textarea>
+                </div>
+
+                <div class="schedule-section">
+                    <h3>📅 Schedule Sample Collection</h3>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label>Collection Date *</label>
+                                <input type="date" name="collectionDate" required>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label>Time Slot *</label>
+                                <select name="collectionTime" required>
+                                    <option value="">Select Time</option>
+                                    <option value="morning">Morning (8AM-12PM)</option>
+                                    <option value="afternoon">Afternoon (12PM-4PM)</option>
+                                    <option value="evening">Evening (4PM-8PM)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Proceed to Payment →</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function loadOrderSummary() {
+            const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems')) || [];
+            const container = document.getElementById('order-items');
+
+            if (checkoutItems.length === 0) {
+                container.innerHTML = '<p>No items in checkout.</p>';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = checkoutItems.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                        <h4>${item.name}</h4>
+                        <p>Quantity: ${item.quantity}</p>
+                        <p><strong>₹${item.price * item.quantity}</strong></p>
+                    </div>
+                `;
+            }).join('') + `<div style="border-top: 2px solid #0f346c; padding-top: 15px; margin-top: 15px;">
+                <h3>Total: ₹${total + 100}</h3></div>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadOrderSummary();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.querySelector('input[name="collectionDate"]').min = tomorrow.toISOString().split('T')[0];
+        });
+
+        document.getElementById('patient-details-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const patientData = {};
+
+            for (let [key, value] of formData.entries()) {
+                patientData[key] = value;
+            }
+
+
+            patientData.submittedAt = new Date().toISOString();
+            localStorage.setItem('patientDetails', JSON.stringify(patientData));
+            window.location.href = 'payment.html';
+        });
+    </script>
+</body>
+
+</html>

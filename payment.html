@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment - Basavatarakam Diagnostics</title>
+      <!-- QR Code Generation Library -->
+      <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+      <style>
+            * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+            }
+
+            body {
+                  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+                  background-color: #f5f5f5;
+                  color: #0f346c;
+            }
+
+            .container {
+                  max-width: 800px;
+                  margin: 100px auto;
+                  padding: 20px;
+            }
+
+            .payment-container {
+                  background: white;
+                  padding: 40px;
+                  border-radius: 15px;
+                  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .header {
+                  background-color: #0f346c;
+                  color: white;
+                  padding: 15px 0;
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  z-index: 1000;
+                  text-align: center;
+            }
+
+            .payment-method {
+                  border: 2px solid #ddd;
+                  border-radius: 10px;
+                  padding: 20px;
+                  margin-bottom: 20px;
+                  cursor: pointer;
+                  transition: all 0.3s ease;
+            }
+
+            .payment-method:hover,
+            .payment-method.selected {
+                  border-color: #0f346c;
+                  background-color: #f8f9ff;
+            }
+
+            .payment-method input[type="radio"] {
+                  display: none;
+            }
+
+            .payment-details {
+                  display: none;
+                  margin-top: 20px;
+                  padding-top: 20px;
+                  border-top: 1px solid #ddd;
+            }
+
+            .payment-details.active {
+                  display: block;
+            }
+
+            .upi-options {
+                  margin: 15px 0;
+            }
+
+            .upi-option {
+                  display: flex;
+                  align-items: center;
+                  margin: 10px 0;
+                  padding: 10px;
+                  border: 1px solid #ddd;
+                  border-radius: 5px;
+                  cursor: pointer;
+                  transition: background-color 0.3s ease;
+            }
+
+            .upi-option:hover {
+                  background-color: #f0f0f0;
+            }
+
+            .upi-option input[type="radio"] {
+                  margin-right: 10px;
+            }
+
+            .qr-container {
+                  text-align: center;
+                  margin: 20px 0;
+                  padding: 20px;
+                  border: 2px dashed #0f346c;
+                  border-radius: 10px;
+                  background-color: #f8f9ff;
+            }
+
+            .payment-amount {
+                  font-size: 18px;
+                  font-weight: bold;
+                  color: #0f346c;
+                  margin: 10px 0;
+            }
+
+            input,
+            select {
+                  width: 100%;
+                  padding: 12px;
+                  border: 2px solid #ddd;
+                  border-radius: 6px;
+                  margin-bottom: 15px;
+            }
+
+            .btn {
+                  background-color: #0f346c;
+                  color: white;
+                  border: none;
+                  padding: 15px 30px;
+                  border-radius: 8px;
+                  font-size: 16px;
+                  cursor: pointer;
+                  width: 100%;
+            }
+
+            .order-summary {
+                  background-color: #f8f9fa;
+                  padding: 20px;
+                  border-radius: 8px;
+                  margin-bottom: 30px;
+            }
+
+            #qrcode {
+                  display: inline-block;
+                  margin: 10px 0;
+            }
+
+            .qr-instructions {
+                  font-size: 14px;
+                  color: #666;
+                  margin-top: 10px;
+            }
+      </style>
+</head>
+
+<body>
+      <div class="header">
+            <h1>Secure Payment</h1>
+            <p>Complete your payment to confirm your lab test booking</p>
+      </div>
+
+      <div class="container">
+            <div class="payment-container">
+                  <div class="order-summary" id="order-summary"></div>
+
+                  <h2>Select Payment Method</h2>
+
+                  <div class="payment-method" onclick="selectPayment('card')">
+                        <input type="radio" name="payment" id="card" value="card">
+                        <label for="card">
+                              <h3>💳 Credit/Debit Card</h3>
+                              <p>Pay securely with your card</p>
+                        </label>
+
+                        <div class="payment-details" id="card-details">
+                              <input type="text" placeholder="Card Number" id="cardNumber" maxlength="19">
+                              <div style="display: flex; gap: 15px;">
+                                    <input type="text" placeholder="MM/YY" id="expiry" maxlength="5">
+                                    <input type="text" placeholder="CVV" id="cvv" maxlength="3">
+                              </div>
+                              <input type="text" placeholder="Cardholder Name" id="cardName">
+                        </div>
+                  </div>
+
+                  <div class="payment-method" onclick="selectPayment('upi')">
+                        <input type="radio" name="payment" id="upi" value="upi">
+                        <label for="upi">
+                              <h3>📱 UPI Payment</h3>
+                              <p>Pay using PhonePe, Google Pay, Paytm</p>
+                        </label>
+
+                        <div class="payment-details" id="upi-details">
+                              <div class="upi-options">
+                                    <div class="upi-option" onclick="selectUpiMethod('upi-id')">
+                                          <input type="radio" name="upi-method" id="upi-id-option" value="upi-id">
+                                          <label for="upi-id-option">💬 Pay with UPI ID</label>
+                                    </div>
+                                    <div class="upi-option" onclick="selectUpiMethod('qr-code')">
+                                          <input type="radio" name="upi-method" id="qr-code-option" value="qr-code">
+                                          <label for="qr-code-option">📸 Pay with QR Code</label>
+                                    </div>
+                              </div>
+
+                              <div id="upi-id-section" style="display: none;">
+                                    <input type="text" placeholder="Enter UPI ID" id="upiId">
+                              </div>
+
+                              <div id="qr-code-section" style="display: none;">
+                                    <div class="qr-container">
+                                          <div class="payment-amount" id="qr-amount"></div>
+                                          <div id="qrcode"></div>
+                                          <div class="qr-instructions">
+                                                Scan this QR code with any UPI app<br>
+                                                (PhonePe, Google Pay, Paytm, BHIM)
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+
+                  <div class="payment-method" onclick="selectPayment('netbanking')">
+                        <input type="radio" name="payment" id="netbanking" value="netbanking">
+                        <label for="netbanking">
+                              <h3>🏦 Net Banking</h3>
+                              <p>Pay through your bank account</p>
+                        </label>
+
+                        <div class="payment-details" id="netbanking-details">
+                              <select id="bankSelect">
+                                    <option value="">Select Your Bank</option>
+                                    <option value="sbi">State Bank of India</option>
+                                    <option value="hdfc">HDFC Bank</option>
+                                    <option value="icici">ICICI Bank</option>
+                                    <option value="axis">Axis Bank</option>
+                              </select>
+                        </div>
+                  </div>
+
+                  <button class="btn" onclick="processPayment()">Pay Now</button>
+            </div>
+      </div>
+
+      <script>
+            let selectedPaymentMethod = '';
+            let selectedUpiMethod = '';
+            let qrCodeInstance = null;
+            let totalAmount = 0;
+
+            function loadPaymentSummary() {
+                  const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems')) || [];
+                  const patientDetails = JSON.parse(localStorage.getItem('patientDetails')) || {};
+                  const container = document.getElementById('order-summary');
+
+                  const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                  const sgst = subtotal * 0.18; // Assuming 18% SGST
+                  const cgst = subtotal * 0.18; // Assuming 18% CGST
+                  const gst = sgst + cgst;
+                  const platofromFee = 50; // Platform fee
+                  totalAmount = subtotal + 100 + platofromFee + gst; // Adding collection fee
+                  localStorage.setItem('totalprice', totalAmount);
+
+                  container.innerHTML = `
+                <h3>Order Summary</h3>
+                <div style="margin: 15px 0;">
+                    <p><strong>Patient:</strong> ${patientDetails.firstName} ${patientDetails.lastName}</p>
+                    <p><strong>Tests:</strong> ${checkoutItems.length} items</p>
+                    <p><strong>Collection Date:</strong> ${patientDetails.collectionDate}</p>
+                </div>
+                <div style="border-top: 1px solid #ddd; padding-top: 15px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Subtotal:</span><span>₹${subtotal}</span>
+                    </div>
+                      <div style="display: flex; justify-content: space-between;">
+                        <span>CGST(18%):</span><span>₹${cgst}</span>
+                    </div>
+                     <div style="display: flex; justify-content: space-between;">
+                        <span>SGST(18%):</span><span>₹${sgst}</span>
+                    </div>
+                     <div style="display: flex; justify-content: space-between;">
+                        <span>GST:</span><span>₹${gst}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>PlatformFee:</span><span>₹${platofromFee}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Home Collection:</span><span>₹100</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <span>Total Amount:</span><span>₹${totalAmount}</span>
+                    </div>
+                </div>
+            `;
+            }
+
+            function selectPayment(method) {
+                  // Remove previous selections
+                  document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+                  document.querySelectorAll('.payment-details').forEach(el => el.classList.remove('active'));
+
+                  // Select current method
+                  document.querySelector(`#${method}`).checked = true;
+                  document.querySelector(`#${method}`).closest('.payment-method').classList.add('selected');
+                  document.querySelector(`#${method}-details`).classList.add('active');
+
+                  selectedPaymentMethod = method;
+
+                  // Reset UPI method selection when switching payment methods
+                  if (method !== 'upi') {
+                        selectedUpiMethod = '';
+                        document.getElementById('upi-id-section').style.display = 'none';
+                        document.getElementById('qr-code-section').style.display = 'none';
+                  }
+            }
+
+            function selectUpiMethod(method) {
+                  event.stopPropagation(); // Prevent triggering parent click event
+
+                  // Update radio button selection
+                  document.querySelectorAll('input[name="upi-method"]').forEach(radio => {
+                        radio.checked = false;
+                  });
+                  document.querySelector(`#${method}-option`).checked = true;
+
+                  selectedUpiMethod = method;
+
+                  // Show/hide appropriate sections
+                  document.getElementById('upi-id-section').style.display = method === 'upi-id' ? 'block' : 'none';
+                  document.getElementById('qr-code-section').style.display = method === 'qr-code' ? 'block' : 'none';
+
+                  // Generate QR code if QR method is selected
+                  if (method === 'qr-code') {
+                        generateUpiQrCode();
+                  }
+            }
+
+            function generateUpiQrCode() {
+                  // Clear previous QR code
+                  const qrContainer = document.getElementById('qrcode');
+                  qrContainer.innerHTML = '';
+
+                  // Update amount display
+                  document.getElementById('qr-amount').textContent = `Amount: ₹${totalAmount}`;
+
+                  // UPI payment parameters
+                  const merchantUpiId = '7288946779-2@ybl'; // Replace with your actual UPI ID
+                  const merchantName = 'Basavatarakam Diagnostics';
+                  const transactionNote = 'Lab Test Payment';
+                  const currency = 'INR';
+
+                  // Generate UPI payment URL according to NPCI standards
+                  const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${totalAmount}&cu=${currency}&tn=${encodeURIComponent(transactionNote)}`;
+
+                  // Generate QR code
+                  qrCodeInstance = new QRCode(qrContainer, {
+                        text: upiUrl,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#0f346c",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                  });
+            }
+
+            function processPayment() {
+                  if (!selectedPaymentMethod) {
+                        alert('Please select a payment method');
+                        return;
+                  }
+
+                  if (selectedPaymentMethod === 'upi' && !selectedUpiMethod) {
+                        alert('Please select a UPI payment option');
+                        return;
+                  }
+
+                  if (selectedPaymentMethod === 'upi' && selectedUpiMethod === 'upi-id') {
+                        const upiId = document.getElementById('upiId').value;
+                        if (!upiId) {
+                              alert('Please enter your UPI ID');
+                              return;
+                        }
+                  }
+
+                  // Simulate payment processing
+                  const btn = document.querySelector('.btn');
+                  btn.textContent = 'Processing Payment...';
+                  btn.disabled = true;
+
+                  setTimeout(() => {
+                        // Create order
+                        const order = createOrder();
+
+                        // Clear cart and checkout data
+                        localStorage.removeItem('checkoutItems');
+
+                        // Redirect to confirmation
+                        window.location.href = 'order-confirmation.html';
+                  }, 2000);
+            }
+
+            function createOrder() {
+                  const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems')) || [];
+                  const patientDetails = JSON.parse(localStorage.getItem('patientDetails')) || {};
+
+                  const order = {
+                        orderId: 'ORD' + Date.now(),
+                        items: checkoutItems,
+                        patient: patientDetails,
+                        payment: {
+                              method: selectedPaymentMethod,
+                              upiMethod: selectedUpiMethod,
+                              amount: totalAmount,
+                              status: 'completed',
+                              transactionId: 'TXN' + Date.now()
+                        },
+                        totalAmount: totalAmount,
+                        orderDate: new Date().toISOString(),
+                        deliveryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'confirmed',
+                        trackingNumber: 'TRK' + Date.now()
+                  };
+
+                  const orders = JSON.parse(localStorage.getItem('medicalOrders')) || [];
+                  orders.push(order);
+                  localStorage.setItem('medicalOrders', JSON.stringify(orders));
+                  localStorage.setItem('currentOrder', JSON.stringify(order));
+
+                  return order;
+            }
+
+            // Auto-format card number and initialize
+            document.addEventListener('DOMContentLoaded', function () {
+                  loadPaymentSummary();
+
+                  const cardNumber = document.getElementById('cardNumber');
+                  cardNumber?.addEventListener('input', function (e) {
+                        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                        e.target.value = formattedValue;
+                  });
+
+                  const expiry = document.getElementById('expiry');
+                  expiry?.addEventListener('input', function (e) {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length >= 2) {
+                              value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                        }
+                        e.target.value = value;
+                  });
+            });
+      </script>
+</body>
+
+</html>

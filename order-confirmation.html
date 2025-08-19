@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <!-- html2pdf bundle (0.10.1 = latest stable) -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+            integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+      <title>Order Confirmed - Basavatarakam Diagnostics</title>
+      <style>
+            * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+            }
+
+            body {
+                  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+                  background-color: #f5f5f5;
+                  color: #0f346c;
+            }
+
+            .container {
+                  max-width: 800px;
+                  margin: 50px auto;
+                  padding: 20px;
+            }
+
+            .confirmation-card {
+                  background: white;
+                  padding: 40px;
+                  border-radius: 15px;
+                  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                  text-align: center;
+            }
+
+            .success-icon {
+                  font-size: 4rem;
+                  color: #28a745;
+                  margin-bottom: 20px;
+            }
+
+            .order-details {
+                  background-color: #f8f9fa;
+                  padding: 25px;
+                  border-radius: 10px;
+                  margin: 30px 0;
+                  text-align: left;
+            }
+
+            .detail-row {
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 10px;
+                  padding-bottom: 10px;
+                  border-bottom: 1px solid #eee;
+            }
+
+            .btn {
+                  background-color: #0f346c;
+                  color: white;
+                  border: none;
+                  padding: 15px 30px;
+                  border-radius: 8px;
+                  font-size: 16px;
+                  cursor: pointer;
+                  margin: 10px;
+            }
+
+            .btn-secondary {
+                  background-color: #6c757d;
+            }
+
+            .delivery-timeline {
+                  background-color: #e7f3ff;
+                  padding: 20px;
+                  border-radius: 8px;
+                  margin-top: 20px;
+                  border-left: 4px solid #0f346c;
+            }
+      </style>
+</head>
+
+<body>
+      <div class="container">
+            <div class="confirmation-card">
+                  <div class="success-icon">✅</div>
+                  <h1>Order Confirmed!</h1>
+                  <p style="font-size: 1.2em; margin: 20px 0; color: #666;">
+                        Thank you for choosing Basavatarakam Diagnostics. Your lab test has been successfully booked.
+                  </p>
+
+                  <div class="order-details" id="order-details"></div>
+
+                  <div class="delivery-timeline">
+                        <h3>📋 What happens next?</h3>
+                        <ul style="text-align: left; margin-top: 15px; padding-left: 20px;">
+                              <li><strong>Sample Collection:</strong> Our phlebotomist will visit you at your scheduled
+                                    time</li>
+                              <li><strong>Processing:</strong> Your samples will be processed in our certified lab</li>
+                              <li><strong>Reports:</strong> Digital reports will be sent within 6 hours of collection
+                              </li>
+                              <li><strong>Delivery:</strong> Physical reports delivered within 4 days guaranteed</li>
+                        </ul>
+                  </div>
+
+                  <div style="margin-top: 30px;">
+                        <button class="btn" onclick="downloadReceipt()">📄 Download Receipt</button>
+                        <button class="btn btn-secondary" onclick="trackOrder()">📍 Track Order</button>
+                        <button class="btn btn-secondary" onclick="goHome()">🏠 Go to Home</button>
+                  </div>
+            </div>
+      </div>
+
+      <script>
+            function loadOrderDetails() {
+                  const order = JSON.parse(localStorage.getItem('currentOrder'));
+                  const totalPrice = JSON.parse(localStorage.getItem('totalprice'));
+                  if (!order) {
+                        document.getElementById('order-details').innerHTML = '<p>Order details not found.</p>';
+                        return;
+                  }
+
+                  const deliveryDate = new Date(order.deliveryDate).toLocaleDateString();
+                  const collectionDate = new Date(order.patient.collectionDate).toLocaleDateString();
+
+                  document.getElementById('order-details').innerHTML = `
+                <h3>Order Details</h3>
+                <div class="detail-row">
+                    <span><strong>Order ID:</strong></span>
+                    <span>${order.orderId}</span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Patient Name:</strong></span>
+                    <span>${order.patient.firstName} ${order.patient.lastName}</span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Total Tests:</strong></span>
+                    <span>${order.items.length} items</span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Collection Date:</strong></span>
+                    <span>${collectionDate}</span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Time Slot:</strong></span>
+                    <span>${order.patient.collectionTime}</span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Total Amount:</strong></span>
+                    <span><strong>₹${totalPrice}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Payment Status:</strong></span>
+                    <span style="color: #28a745;"><strong>Paid</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span><strong>Expected Delivery:</strong></span>
+                    <span>${deliveryDate}</span>
+                </div>
+            `;
+            }
+
+
+            function downloadReceipt() {
+                  // 1. Re-use the order data you already cached
+                  const orderObj = JSON.parse(localStorage.getItem('currentOrder')) || {};
+                  const totalPrice = JSON.parse(localStorage.getItem('totalprice')) || 0;
+
+                  // 2. Dynamically stamp the Order ID in the file name
+                  const fileName = `Receipt_${orderObj.orderId || 'Lab'}.pdf`;
+
+                  // 3. Pick the DOM node you want to render
+                  const sourceEl = document.querySelector('.confirmation-card');   // or any other element
+
+                  // 4. Configure & generate the PDF
+                  html2pdf()
+                        .set({
+                              margin: 10,               // mm
+                              filename: fileName,
+                              image: { type: 'jpeg', quality: 0.98 },
+                              html2canvas: { scale: 2 },     // sharper on high-DPI screens
+                              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        })
+                        .from(sourceEl)
+                        .save()
+                        .catch(err => console.error('PDF generation error:', err));
+            }
+
+
+
+            function trackOrder() {
+                  alert('Order tracking feature will be implemented with your backend integration.');
+            }
+
+            function goHome() {
+                  window.location.href = 'test.html';
+            }
+
+            document.addEventListener('DOMContentLoaded', loadOrderDetails);
+      </script>
+</body>
+
+</html>
